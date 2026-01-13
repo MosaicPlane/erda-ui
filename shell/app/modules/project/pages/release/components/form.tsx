@@ -130,7 +130,6 @@ const ReleaseForm = ({ readyOnly = false }: { readyOnly?: boolean }) => {
       className: 'w-1/2',
       rules: [
         { required: true, message: i18n.t('Please enter the {name}', { name: i18n.t('Version').toLowerCase() }) },
-        { max: 30, message: i18n.t('dop:no more than 30 characters') },
         {
           pattern: /^[A-Za-z0-9._+-]+$/,
           message: i18n.t('dop:Must be composed of letters, numbers, underscores, hyphens and dots.'),
