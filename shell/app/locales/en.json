@@ -1790,6 +1790,7 @@
     "no ip address": "no ip address",
     "no matching data": "no matching data",
     "no more than 30 characters": "no more than 30 characters",
+    "no more than 100 characters": "no more than 100 characters",
     "no {name}": "no {name}",
     "node params": "node params",
     "normal view": "normal view",

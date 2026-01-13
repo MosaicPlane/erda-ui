@@ -1790,6 +1790,7 @@
     "no ip address": "暂无ip地址",
     "no matching data": "无匹配数据",
     "no more than 30 characters": "不超过30个字符",
+    "no more than 100 characters": "不超过100个字符",
     "no {name}": "暂无{name}",
     "node params": "节点入参",
     "normal view": "正常查看",
