@@ -17,6 +17,7 @@ import { get } from 'lodash';
 import i18n from 'i18n';
 import { Avatar } from 'antd';
 import { getAvatarChars } from 'common/utils';
+import userStore from 'user/stores';
 import Ellipsis from 'common/components/ellipsis';
 import { AvatarSize } from 'antd/lib/avatar/SizeContext';
 
@@ -24,7 +25,7 @@ interface IPlatformUser {
   avatar: string;
   email: string;
   id: string;
-  locked: boolean;
+  locked?: boolean;
   name: string;
   nick: string;
   phone: string;
@@ -37,13 +38,14 @@ interface IProps {
   render?: (data: IPlatformUser, id?: string | number) => React.ReactNode;
 }
 
-const defaultRender = (data: IPlatformUser, id: string | number) => {
+const defaultRender = (data: IPlatformUser, id?: string | number) => {
   return data.nick || data.name || id || i18n.t('None');
 };
 
 const UserInfo = ({ id, render = defaultRender }: IProps) => {
   const userMap = useUserMap();
-  const userInfo: IPlatformUser = get(userMap, id, {});
+  const loginUser = userStore.useStore((s) => s.loginUser);
+  const userInfo = get({ [loginUser.id]: loginUser as unknown as IPlatformUser, ...userMap }, id, {}) as IPlatformUser;
   return <>{render?.(userInfo, id)}</>;
 };
 
