@@ -16,6 +16,7 @@ grep -q '"integrity": "sha512-' build/community/tooling/package-lock.json
 grep -q '^\.git$' Dockerfile.community.dockerignore
 grep -q 'node_modules' Dockerfile.community.dockerignore
 grep -q 'RUN bash build/community/install-dependencies.sh' Dockerfile.community
+grep -Fq 'node-linux-x64/bin/node node_modules/.bin/node' Dockerfile.community
 grep -Fq 'ENV COMMUNITY_PNPM_BIN=/opt/tooling/node_modules/.bin' Dockerfile.community
 grep -Fq 'ENV PATH=${COMMUNITY_PNPM_BIN}:${PATH}' Dockerfile.community
 if rg -n 'npx|only-allow' Dockerfile.community build/community/install-dependencies.sh; then

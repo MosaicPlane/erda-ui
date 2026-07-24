@@ -3,6 +3,8 @@ FROM ${UI_NODE_IMAGE} AS tooling
 WORKDIR /opt/tooling
 COPY build/community/tooling/package.json build/community/tooling/package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts --registry=https://registry.npmjs.org
+RUN ln -sf ../node-linux-x64/bin/node node_modules/.bin/node \
+    && test "$(node_modules/.bin/node --version)" = v16.20.2
 
 FROM ${UI_NODE_IMAGE} AS build
 
