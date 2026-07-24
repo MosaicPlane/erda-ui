@@ -37,6 +37,8 @@ const resolve = (pathname) => path.resolve(__dirname, pathname);
 module.exports = async () => {
   const nodeEnv = process.env.NODE_ENV || 'development';
   const isProd = nodeEnv === 'production';
+  const isCommunity = process.env.FOR_COMMUNITY && process.env.FOR_COMMUNITY !== 'false';
+  const mspRoot = isCommunity ? './app/modules/msp' : './app/modules/extra/msp';
   const cpuNum = os.cpus().length;
 
   console.log('isProd:', isProd, process.version);
@@ -51,6 +53,7 @@ module.exports = async () => {
     target: isProd ? 'browserslist' : 'web',
     resolve: {
       alias: {
+        ...(isCommunity ? { 'app/modules/extra/msp': resolve('./app/modules/msp') } : {}),
         app: resolve('./app'),
         common: resolve('./app/common'),
         configForm: resolve('./app/configForm'),
@@ -68,24 +71,24 @@ module.exports = async () => {
         runtime: resolve('./app/modules/runtime'),
         dop: resolve('./app/modules/dop'),
         addonPlatform: resolve('./app/modules/addonPlatform'),
-        msp: resolve('./app/modules/extra/msp'),
+        msp: resolve(mspRoot),
         apiManagePlatform: resolve('./app/modules/apiManagePlatform'),
         gallery: resolve('./app/modules/gallery'),
         agent: resolve('./app/agent.js'),
         i18n: resolve('./app/i18n.ts'),
 
-        'monitor-overview': resolve('./app/modules/extra/msp/monitor/monitor-overview'),
-        'external-insight': resolve('./app/modules/extra/msp/monitor/external-insight'),
-        'browser-insight': resolve('./app/modules/extra/msp/monitor/browser-insight'),
-        'gateway-ingress': resolve('./app/modules/extra/msp/monitor/gateway-ingress'),
-        'docker-container': resolve('./app/modules/extra/msp/monitor/docker-container'),
-        'api-insight': resolve('./app/modules/extra/msp/monitor/api-insight'),
-        'trace-insight': resolve('./app/modules/extra/msp/monitor/trace-insight'),
-        'monitor-common': resolve('./app/modules/extra/msp/monitor/monitor-common'),
-        topology: resolve('./app/modules/extra/msp/monitor/topology'),
-        'status-insight': resolve('./app/modules/extra/msp/monitor/status-insight'),
-        'error-insight': resolve('./app/modules/extra/msp/monitor/error-insight'),
-        'monitor-alarm': resolve('./app/modules/extra/msp/monitor/monitor-alarm'),
+        'monitor-overview': resolve(`${mspRoot}/monitor/monitor-overview`),
+        'external-insight': resolve(`${mspRoot}/monitor/external-insight`),
+        'browser-insight': resolve(`${mspRoot}/monitor/browser-insight`),
+        'gateway-ingress': resolve(`${mspRoot}/monitor/gateway-ingress`),
+        'docker-container': resolve(`${mspRoot}/monitor/docker-container`),
+        'api-insight': resolve(`${mspRoot}/monitor/api-insight`),
+        'trace-insight': resolve(`${mspRoot}/monitor/trace-insight`),
+        'monitor-common': resolve(`${mspRoot}/monitor/monitor-common`),
+        topology: resolve(`${mspRoot}/monitor/topology`),
+        'status-insight': resolve(`${mspRoot}/monitor/status-insight`),
+        'error-insight': resolve(`${mspRoot}/monitor/error-insight`),
+        'monitor-alarm': resolve(`${mspRoot}/monitor/monitor-alarm`),
 
         '@': resolve('./node_modules/erda-pyroscope/src'),
         '@pyroscope/models': resolve('./node_modules/erda-pyroscope/src/components/pyroscope-models'),
