@@ -13,16 +13,21 @@
 
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
-const os = require('os');
 const webpack = require('webpack');
-const GitRevisionPlugin = require('git-revision-webpack-plugin');
 
-const gitRevisionPlugin = new GitRevisionPlugin();
-const banner = `module: core
-commit: ${gitRevisionPlugin.commithash().slice(0, 6)}
-branch: ${gitRevisionPlugin.branch()}
-buildTime: ${new Date().toLocaleString('zh-CH', { timeZone: 'Asia/Shanghai' })}
-buildBy: ${os.userInfo().username}`;
+const sourceDateEpoch = process.env.SOURCE_DATE_EPOCH;
+if (!sourceDateEpoch || !/^[0-9]+$/.test(sourceDateEpoch)) {
+  throw new Error('SOURCE_DATE_EPOCH must be an integer Unix timestamp');
+}
+const vcsRef = process.env.VCS_REF;
+if (!vcsRef || !/^[0-9a-f]{40}$/.test(vcsRef)) {
+  throw new Error('VCS_REF must be a full lowercase commit SHA');
+}
+const buildTime = new Date(Number(sourceDateEpoch) * 1000).toISOString();
+const banner = `module: ${path.basename(__dirname)}
+commit: ${vcsRef.slice(0, 6)}
+buildTime: ${buildTime}
+buildBy: mosaicplane`;
 
 module.exports = {
   mode: 'production',

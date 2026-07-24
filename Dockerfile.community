@@ -1,0 +1,36 @@
+ARG UI_NODE_IMAGE
+FROM ${UI_NODE_IMAGE} AS tooling
+WORKDIR /opt/tooling
+COPY build/community/tooling/package.json build/community/tooling/package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts --registry=https://registry.npmjs.org
+
+FROM ${UI_NODE_IMAGE} AS build
+
+ARG SOURCE_DATE_EPOCH
+ARG VCS_REF
+ENV SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+ENV VCS_REF=${VCS_REF}
+ENV FOR_COMMUNITY=true
+ENV COMMUNITY_PNPM_BIN=/opt/tooling/node_modules/.bin
+ENV PATH=${COMMUNITY_PNPM_BIN}:${PATH}
+WORKDIR /build
+COPY --from=tooling /opt/tooling/node_modules /opt/tooling/node_modules
+COPY . .
+RUN bash build/community/install-dependencies.sh
+RUN pnpm run build-online
+RUN pnpm --filter @erda-ui/scheduler run build
+
+FROM ${UI_NODE_IMAGE}
+ENV NODE_ENV=production
+ENV COMMUNITY_PNPM_BIN=/opt/tooling/node_modules/.bin
+ENV PATH=${COMMUNITY_PNPM_BIN}:${PATH}
+WORKDIR /usr/src/app
+COPY --from=tooling /opt/tooling/node_modules /opt/tooling/node_modules
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY scheduler/package.json scheduler/package.json
+RUN pnpm install --frozen-lockfile --prod \
+      --filter @erda-ui/scheduler --ignore-scripts
+COPY --from=build /build/public public
+COPY --from=build /build/scheduler/dist scheduler/dist
+EXPOSE 80
+CMD ["node", "scheduler/dist/main"]

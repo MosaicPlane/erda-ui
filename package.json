@@ -17,7 +17,9 @@
     "i18n": "erda-ui i18n",
     "preinstall": "npx only-allow pnpm",
     "pnpm:devPreinstall": "mkdir -p ./cli/dist/bin && touch ./cli/dist/bin/erda.js",
-    "postinstall": "pnpm --filter @erda-ui/components run build:noDeclare  && pnpm --filter @erda-ui/cli run build"
+    "postinstall": "pnpm --filter @erda-ui/components run build:noDeclare  && pnpm --filter @erda-ui/cli run build",
+    "verify:community-image": "bash build/community/dependency-policy.sh && bash build/community/image-policy.sh",
+    "build:community-image": "pnpm run verify:community-image && bash build/community/build-image.sh"
   },
   "repository": {
     "type": "git",

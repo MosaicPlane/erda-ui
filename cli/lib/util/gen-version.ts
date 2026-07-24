@@ -18,20 +18,21 @@
  */
 import fs from 'fs';
 import { getPublicDir } from './env';
-import { logSuccess, logError } from './log';
+import { logSuccess } from './log';
+
+export const versionFromEnvironment = (): number => {
+  const value = process.env.SOURCE_DATE_EPOCH;
+  if (!value || !/^[0-9]+$/.test(value)) {
+    throw new Error('SOURCE_DATE_EPOCH must be an integer Unix timestamp');
+  }
+  return Number(value) * 1000;
+};
 
 const GenVersion = () => {
-  const data = { version: Date.parse(new Date().toString()) };
-
-  fs.mkdir(`${getPublicDir()}`, '0777', () => {
-    fs.writeFile(`${getPublicDir()}/version.json`, JSON.stringify(data), (err) => {
-      if (err) {
-        logError('version.json generated fail', err);
-      } else {
-        logSuccess('version.json generated ok.');
-      }
-    });
-  });
+  const data = { version: versionFromEnvironment() };
+  fs.mkdirSync(getPublicDir(), { recursive: true });
+  fs.writeFileSync(`${getPublicDir()}/version.json`, `${JSON.stringify(data)}\n`);
+  logSuccess('version.json generated ok.');
 };
 
 export default GenVersion;
