@@ -1,0 +1,13 @@
+{
+  "name": "erda-ui-community-tooling",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "pnpm": "6.32.8"
+  },
+  "optionalDependencies": {
+    "node-bin-darwin-arm64": "16.20.2",
+    "node-linux-arm64": "16.20.2",
+    "node-linux-x64": "16.20.2"
+  }
+}

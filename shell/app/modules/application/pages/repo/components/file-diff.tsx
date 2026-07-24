@@ -13,8 +13,6 @@
 
 import { Tooltip, Radio, Button, Modal, Empty, message, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { encode } from 'js-base64';
-import moment from 'moment';
 import i18n from 'i18n';
 import { diff_match_patch as Diff } from 'diff-match-patch';
 import { EmptyListHolder, Icon as CustomIcon, IF, BackToTop, ErdaIcon, MarkdownRender } from 'common';
@@ -24,16 +22,11 @@ import { getFileCommentMap } from './mr-comments';
 import MarkdownEditor from 'common/components/markdown-editor';
 import { isImage, setApiWithOrg, getOrgFromPath } from 'common/utils';
 import { CommentBox } from 'application/common/components/comment-box';
-import { erdaEnv } from 'common/constants';
-import { ChatProvider, Chat as TChart } from '@terminus/ai-components';
 import 'requestidlecallback-polyfill';
 import './file-diff.scss';
 import repoStore from 'application/stores/repo';
 import appStore from 'application/stores/application';
 import routeInfoStore from 'core/stores/route';
-import userStore from 'app/user/stores';
-import orgStore from 'app/org-home/stores/org';
-import { getLogs } from 'layout/services/ai-chat';
 
 const diffTool = new Diff();
 const { ELSE } = IF;
@@ -79,9 +72,6 @@ const CommentIcon = ({ disableComment, onClick }: { disableComment?: boolean; on
     <ErdaIcon className="hover-active comment-icon select-none" type="add-one" onClick={onClick} />
   );
 
-const AI_BACKEND_URL = erdaEnv.AI_BACKEND_URL || 'https://ai-proxy.erda.cloud';
-const AI_PROXY_CLIENT_AK = erdaEnv.AI_PROXY_CLIENT_AK || '21b58e59f4ad4c46b0c7c70f6b76d8f5';
-
 const CommentListBox = ({ comments }: { comments: REPOSITORY.IComment[] }) => {
   if (!comments) {
     return null;
@@ -122,101 +112,15 @@ const CommentListBox = ({ comments }: { comments: REPOSITORY.IComment[] }) => {
   );
 };
 
-const AICommentBox = ({ comment }: { comment: REPOSITORY.IComment }) => {
-  const { id: userId, nick: name, phone, email } = userStore.getState((s) => s.loginUser);
-  const orgId = orgStore.useStore((s) => s.currentOrg.id);
-  const [isEdit, setIsEdit] = useState(false);
-  const [list, setList] = useState<Array<{ time: string; content: string; role: string }>>([]);
-
-  useEffect(() => {
-    if (isEdit && comment.data.aiSessionID) {
-      loadLogs(comment.data.aiSessionID);
-    }
-  }, [isEdit, comment.data.aiSessionID]);
-
-  const loadLogs = async (chatId: string) => {
-    const res = await getLogs({ userId, name, phone, email, id: chatId });
-    if (res.success) {
-      const {
-        data: { list: _list },
-      } = res;
-      const messages = [] as Array<{ time: string; content: string; role: string }>;
-      _list.reverse().forEach((item) => {
-        messages.push({ role: 'user', content: item.prompt, time: moment(item.requestAt).format('YYYY-MM-DD') });
-        messages.push({
-          role: 'assistant',
-          content: item.completion,
-          time: moment(item.responseAt).format('YYYY-MM-DD'),
-        });
-      });
-      setList(messages);
-    }
-  };
-
-  return isEdit ? (
-    <div>
-      <div className="border-all my-2 mr-4">
-        <ChatProvider>
-          <TChart
-            getMsgfetchConfig={{
-              path: `${AI_BACKEND_URL}/v1/chat/completions`,
-              getBody: (messages) => ({
-                // model: 'gpt-35-turbo-16k',
-                messages: [
-                  {
-                    role: 'user',
-                    content: messages[messages?.length - 1].content,
-                  },
-                ],
-                stream: true,
-              }),
-              headers: {
-                'X-Ai-Proxy-User-Id': encode(userId),
-                'X-Ai-Proxy-Username': encode(name),
-                'X-Ai-Proxy-Phone': encode(phone),
-                'X-AI-Proxy-Email': encode(email),
-                'X-Ai-Proxy-Source': 'erda.cloud',
-                'X-Ai-Proxy-Org-Id': encode(`${orgId}`),
-                'X-AI-Proxy-Session-Id': `${comment.data.aiSessionID}`,
-                'X-AI-Proxy-Prompt-Id': '',
-                Authorization: AI_PROXY_CLIENT_AK,
-              },
-              formatResult: (msgData) => {
-                const { data } = msgData;
-                if (data !== '[DONE]') {
-                  const dataObj = JSON.parse(data);
-                  const { choices } = dataObj;
-                  const { delta } = choices[0] || {};
-                  const { content } = delta || {};
-                  return { data: content || '' };
-                }
-                return { data: '' };
-              },
-            }}
-            toolbarConfig={{
-              historyConfig: { show: false },
-              promptConfig: { show: false },
-              chatConfig: { show: false },
-            }}
-            messages={list}
-          />
-        </ChatProvider>
-      </div>
-      <Button onClick={() => setIsEdit(false)}>{i18n.t('Cancel')}</Button>
-    </div>
-  ) : (
-    <div className="">
-      <CommentBox
-        key={comment.id}
-        user={comment.role === 'AI' ? 'AI' : comment.author.nickName}
-        time={comment.createdAt}
-        action={i18n.t('dop:commented at')}
-        content={comment.note || ''}
-      />
-      <Button onClick={() => setIsEdit(true)}>{i18n.t('Continue the AI conversation')}</Button>
-    </div>
-  );
-};
+const AICommentBox = ({ comment }: { comment: REPOSITORY.IComment }) => (
+  <CommentBox
+    key={comment.id}
+    user={comment.role === 'AI' ? 'AI' : comment.author.nickName}
+    time={comment.createdAt}
+    action={i18n.t('dop:commented at')}
+    content={comment.note || ''}
+  />
+);
 
 interface IProps {
   file: REPOSITORY.IFile;

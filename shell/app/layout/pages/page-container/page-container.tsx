@@ -28,7 +28,6 @@ import userStore from 'app/user/stores';
 import agent from 'agent';
 import { MessageCenter } from './components/message/message';
 import { Announcement } from './components/announcement';
-import ChatGPT from './components/chat-GPT';
 import layoutStore from 'app/layout/stores/layout';
 import { checkVersion } from 'app/layout/common/check-version';
 import routeInfoStore from 'core/stores/route';
@@ -152,7 +151,6 @@ const PageContainer = ({ route }: IProps) => {
         {MainContent}
       </div>
       <MessageCenter show={showMessage} />
-      {currentOrg && ['erda', 'terminus'].includes(currentOrg.name) && <ChatGPT />}
     </Shell>
   );
 };
