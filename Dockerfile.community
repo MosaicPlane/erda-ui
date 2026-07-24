@@ -19,7 +19,7 @@ WORKDIR /build
 COPY --from=tooling /opt/tooling/node_modules /opt/tooling/node_modules
 COPY . .
 RUN bash build/community/install-dependencies.sh
-RUN pnpm run build-online
+RUN node cli/dist/bin/erda.js build --online
 RUN pnpm --filter @erda-ui/scheduler run build
 
 FROM ${UI_NODE_IMAGE}
