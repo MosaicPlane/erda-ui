@@ -1,4 +1,6 @@
 Dockerfile
+Dockerfile.community
+Dockerfile.community.dockerignore
 pipeline.yml
 .git
 **/node_modules
