@@ -14,6 +14,8 @@ cache_args=()
 [[ -z "${BUILDER_NAME:-}" ]] || builder_args+=(--builder "${BUILDER_NAME}")
 [[ "${NO_CACHE:-false}" != true ]] || cache_args+=(--no-cache)
 
+# macOS ships Bash 3.2, where expanding an empty array under nounset fails.
+set +u
 docker buildx build \
   "${builder_args[@]}" \
   "${cache_args[@]}" \
@@ -28,4 +30,5 @@ docker buildx build \
   --tag "${image}" \
   --file Dockerfile.community \
   .
+set -u
 echo "${image}"
