@@ -40,7 +40,8 @@ const usePlatformEntries = () => {
     fdp: permMap.entryFastData.pass && currentOrg.openFdp,
     msp: permMap.entryMsp.pass,
     ecp: erdaEnv.ENABLE_EDGE === 'true' && permMap.ecp.view.pass && currentOrg.type === 'ENTERPRISE',
-    gallery: `${erdaEnv.ENABLE_GALLERY}` !== 'false',
+    // Re-enable after the community distribution provides the Gallery backend.
+    gallery: false,
   } as Record<string, boolean>;
   return appList.filter((app) => openMap[app.key]);
 };
