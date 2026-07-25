@@ -49,4 +49,6 @@ if rg -n \
 fi
 bash -n build/community/resolve-base-images.sh
 bash -n build/community/build-image.sh
+bash -n build/community/tests/publish-workflow-test.sh
+bash build/community/tests/publish-workflow-test.sh
 echo "community UI image policy: PASS"
