@@ -141,7 +141,7 @@ const DeployInfo = () => {
           </IF>
           <IF check={hasAuth}>
             <React.Fragment>
-              <IF check={['k8s', 'edas'].includes(runtimeDetail.clusterType)}>
+              <IF check={runtimeDetail.clusterType === 'k8s'}>
                 <Button onClick={() => updater.progressiveVisible(true)}>渐进式发布</Button>
               </IF>
               <Dropdown overlay={menu} trigger={['click']} disabled={showCancelBtn || isBlocked}>
