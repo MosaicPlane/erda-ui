@@ -127,8 +127,12 @@ export const cancelDeployment = (data: RUNTIME.CancelDeployBody) => {
     .then((response: any) => response.body);
 };
 
+const unwrapProgressiveReleaseResponse = <T>(response: any): T => response.body?.data ?? response.body;
+
 export const getProgressiveReleases = (runtimeId: number | string): RUNTIME.ProgressiveReleaseStatus[] =>
-  agent.get(`/api/runtimes/${runtimeId}/progressive-releases`).then((response: any) => response.body);
+  agent
+    .get(`/api/runtimes/${runtimeId}/progressive-releases`)
+    .then((response: any) => unwrapProgressiveReleaseResponse<RUNTIME.ProgressiveReleaseStatus[]>(response));
 
 export const configureProgressiveRelease = (
   runtimeId: number | string,
@@ -137,7 +141,7 @@ export const configureProgressiveRelease = (
   agent
     .put(`/api/runtimes/${runtimeId}/progressive-releases`)
     .send(config)
-    .then((response: any) => response.body);
+    .then((response: any) => unwrapProgressiveReleaseResponse<RUNTIME.ProgressiveReleaseStatus>(response));
 
 export const approveProgressiveRelease = (
   runtimeId: number | string,
@@ -146,7 +150,7 @@ export const approveProgressiveRelease = (
   agent
     .post(`/api/runtimes/${runtimeId}/progressive-releases/actions/approve`)
     .send({ serviceName })
-    .then((response: any) => response.body);
+    .then((response: any) => unwrapProgressiveReleaseResponse<RUNTIME.ProgressiveReleaseStatus>(response));
 
 export const rollbackProgressiveRelease = (
   runtimeId: number | string,
@@ -155,4 +159,4 @@ export const rollbackProgressiveRelease = (
   agent
     .post(`/api/runtimes/${runtimeId}/progressive-releases/actions/rollback`)
     .send({ serviceName })
-    .then((response: any) => response.body);
+    .then((response: any) => unwrapProgressiveReleaseResponse<RUNTIME.ProgressiveReleaseStatus>(response));
