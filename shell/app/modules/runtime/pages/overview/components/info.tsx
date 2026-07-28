@@ -16,6 +16,7 @@ import { Popconfirm, Button, Dropdown, Menu } from 'antd';
 import { IF, NoAuthTip, ErdaIcon, TopButtonGroup } from 'common';
 import { useUpdate } from 'common/use-hooks';
 import RollbackList from './rollback-list';
+import ProgressiveRelease from './progressive-release';
 import DeployStatus from './deploy-status';
 import { usePerm } from 'app/user/common';
 import orgStore from 'app/org-home/stores/org';
@@ -51,6 +52,7 @@ const DeployInfo = () => {
 
   const [state, updater] = useUpdate({
     visible: false,
+    progressiveVisible: false,
   });
 
   const showSlidePanel = () => {
@@ -138,12 +140,17 @@ const DeployInfo = () => {
             </div>
           </IF>
           <IF check={hasAuth}>
-            <Dropdown overlay={menu} trigger={['click']} disabled={showCancelBtn || isBlocked}>
-              <Button type="primary" disabled={showCancelBtn || isBlocked}>
-                {i18n.t('Operations')}
-                <ErdaIcon type="down" />
-              </Button>
-            </Dropdown>
+            <React.Fragment>
+              <IF check={['k8s', 'edas'].includes(runtimeDetail.clusterType)}>
+                <Button onClick={() => updater.progressiveVisible(true)}>渐进式发布</Button>
+              </IF>
+              <Dropdown overlay={menu} trigger={['click']} disabled={showCancelBtn || isBlocked}>
+                <Button type="primary" disabled={showCancelBtn || isBlocked}>
+                  {i18n.t('Operations')}
+                  <ErdaIcon type="down" />
+                </Button>
+              </Dropdown>
+            </React.Fragment>
             <ELSE />
             <NoAuthTip>
               <Button type="primary">
@@ -155,6 +162,15 @@ const DeployInfo = () => {
         </div>
       </TopButtonGroup>
       <RollbackList visible={state.visible} onClose={onClose} />
+      <ProgressiveRelease
+        visible={state.progressiveVisible}
+        runtimeId={runtimeDetail.id}
+        serviceReplicas={Object.keys(runtimeDetail.services || {}).reduce((result, name) => {
+          result[name] = runtimeDetail.services[name].deployments.replicas;
+          return result;
+        }, {} as Record<string, number>)}
+        onClose={() => updater.progressiveVisible(false)}
+      />
     </React.Fragment>
   );
 };

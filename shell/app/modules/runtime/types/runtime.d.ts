@@ -86,6 +86,32 @@ declare namespace RUNTIME {
     deploymentId: number;
   }
 
+  interface ProgressiveReleaseStatus {
+    serviceName: string;
+    workloadName: string;
+    namespace: string;
+    enabled: boolean;
+    phase: string;
+    message: string;
+    currentStep: number;
+    totalSteps: number;
+    currentStepState: string;
+    firstBatchReplicas: number;
+    observationSeconds: number;
+    observationStartedAt?: string;
+    observationEndsAt?: string;
+    remainingSeconds: number;
+    canApprove: boolean;
+    canRollback: boolean;
+  }
+
+  interface ProgressiveReleaseConfig {
+    serviceName: string;
+    enabled: boolean;
+    firstBatchReplicas: number;
+    observationSeconds: number;
+  }
+
   interface CancelDeployBody {
     runtimeId: string;
     operator: string;

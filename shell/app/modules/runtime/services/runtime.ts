@@ -126,3 +126,33 @@ export const cancelDeployment = (data: RUNTIME.CancelDeployBody) => {
     .send(data)
     .then((response: any) => response.body);
 };
+
+export const getProgressiveReleases = (runtimeId: number | string): RUNTIME.ProgressiveReleaseStatus[] =>
+  agent.get(`/api/runtimes/${runtimeId}/progressive-releases`).then((response: any) => response.body);
+
+export const configureProgressiveRelease = (
+  runtimeId: number | string,
+  config: RUNTIME.ProgressiveReleaseConfig,
+): RUNTIME.ProgressiveReleaseStatus =>
+  agent
+    .put(`/api/runtimes/${runtimeId}/progressive-releases`)
+    .send(config)
+    .then((response: any) => response.body);
+
+export const approveProgressiveRelease = (
+  runtimeId: number | string,
+  serviceName: string,
+): RUNTIME.ProgressiveReleaseStatus =>
+  agent
+    .post(`/api/runtimes/${runtimeId}/progressive-releases/actions/approve`)
+    .send({ serviceName })
+    .then((response: any) => response.body);
+
+export const rollbackProgressiveRelease = (
+  runtimeId: number | string,
+  serviceName: string,
+): RUNTIME.ProgressiveReleaseStatus =>
+  agent
+    .post(`/api/runtimes/${runtimeId}/progressive-releases/actions/rollback`)
+    .send({ serviceName })
+    .then((response: any) => response.body);
